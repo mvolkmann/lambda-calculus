@@ -129,9 +129,24 @@ test('exp', () => {
   expect(jsnum(exp(three)(two))).toBe(9);
 });
 
-// TODO: Implement the equal function.
+const equalbool = a => b => or(and(a)(b))(and(not(a))(not(b)));
+// λab. (or (and a b) (and (not a) (not b)))
+test('equalbool', () => {
+  expect(jsbool(equalbool(true_)(true_))).toBe(true);
+  expect(jsbool(equalbool(true_)(false_))).toBe(false);
+  expect(jsbool(equalbool(false_)(true_))).toBe(false);
+  expect(jsbool(equalbool(false_)(false_))).toBe(true);
+});
 
-// TODO: Implement the function composition function.
+// We have to test both because sub returns zero when m < n.
+const equalnum = m => n => and(iszero(sub(m)(n)))(iszero(sub(n)(m)));
+// λmn.and (iszero (sub m n)) (iszero (sub n m))
+test('equalnum', () => {
+  expect(jsbool(equalnum(one)(two))).toBe(false);
+  expect(jsbool(equalnum(two)(two))).toBe(true);
+  expect(jsbool(equalnum(two)(one))).toBe(false);
+});
+
 const compose = f => g => x => f(g(x)); // λfgx.f (g x)
 test('compose', () => {
   const add3 = n => add(three)(n);
