@@ -39,10 +39,14 @@ test('iff', () => {
   expect(jsnum(iff(f)(two)(three))).toBe(3);
 });
 
+const succ = n => f => a => f(n(f)(a));
 const zero = f => x => x;
 const one = f => x => f(x);
+//const one = succ(zero);
 const two = f => x => f(f(x));
+//const two = succ(one);
 const three = f => x => f(f(f(x)));
+//const three = succ(two);
 
 const identity = x => x;
 test('identity', () => {
@@ -57,20 +61,19 @@ test('iszero', () => {
   expect(jsbool(iszero(two))).toBe(false);
 });
 
-const succ = n => f => a => f(n(f)(a));
 test('succ', () => {
   expect(jsnum(succ(zero))).toBe(1);
   expect(jsnum(succ(one))).toBe(2);
   expect(jsnum(succ(two))).toBe(3);
 });
 
-const pred = n => iszero(n)(zero)(n(f));
-// const pred = n => n(f);
+// λn.λf.λx. n (λg.λh. h (g f)) (λu.x) (λu.u)
+const pred = n => f => x => n(g => h => h(g(f)))(u => x)(u => u);
 test('pred', () => {
   expect(jsnum(pred(zero))).toBe(0);
   expect(jsnum(pred(one))).toBe(0);
-  // expect(jsnum(pred(two))).toBe(1);
-  // expect(jsnum(pred(three))).toBe(2);
+  expect(jsnum(pred(two))).toBe(1);
+  expect(jsnum(pred(three))).toBe(2);
 });
 
 const add = m => n => m(succ)(n);
@@ -79,6 +82,18 @@ test('add', () => {
   expect(jsnum(add(zero)(one))).toBe(1);
   expect(jsnum(add(one)(zero))).toBe(1);
   expect(jsnum(add(two)(three))).toBe(5);
+});
+
+const sub = m => n => n(pred)(m);
+test('sub', () => {
+  expect(jsnum(sub(zero)(zero))).toBe(0);
+  expect(jsnum(sub(one)(zero))).toBe(1);
+  expect(jsnum(sub(two)(zero))).toBe(2);
+  expect(jsnum(sub(two)(one))).toBe(1);
+  expect(jsnum(sub(two)(two))).toBe(0);
+  expect(jsnum(sub(three)(one))).toBe(2);
+  expect(jsnum(sub(three)(two))).toBe(1);
+  expect(jsnum(sub(three)(three))).toBe(0);
 });
 
 const mult = m => n => m(add(n))(zero);
