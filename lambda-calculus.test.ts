@@ -12,13 +12,13 @@ test('true/false', () => {
   expect(jsbool(false_)).toBe(false);
 });
 
-const not = b => b(false_)(true_); // λb. b false true
+const not = b => b(false_)(true_); // λb.b false true
 test('not', () => {
   expect(jsbool(not(true_))).toBe(false);
   expect(jsbool(not(false_))).toBe(true);
 });
 
-const and = x => y => x(y)(false_); // λx. (λy. x y false)
+const and = x => y => x(y)(false_); // λx.(λy.x y false)
 test('and', () => {
   expect(jsbool(and(true_)(true_))).toBe(true);
   expect(jsbool(and(true_)(false_))).toBe(false);
@@ -26,7 +26,7 @@ test('and', () => {
   expect(jsbool(and(false_)(false_))).toBe(false);
 });
 
-const or = x => y => x(true_)(y); // λx. (λy. x true y)
+const or = x => y => x(true_)(y); // λx.(λy.x true y)
 test('or', () => {
   expect(jsbool(or(true_)(true_))).toBe(true);
   expect(jsbool(or(true_)(false_))).toBe(true);
@@ -63,7 +63,7 @@ test('iszero', () => {
   expect(jsbool(iszero(two))).toBe(false);
 });
 
-const succ = n => f => x => f(n(f)(x)); // λn (λf. λx. f (n f x))
+const succ = n => f => x => f(n(f)(x)); // λn (λf. λx.f (n f x))
 test('succ', () => {
   expect(jsnum(succ(zero))).toBe(1);
   expect(jsnum(succ(one))).toBe(2);
@@ -71,7 +71,7 @@ test('succ', () => {
 });
 
 const pred = n => f => x => n(g => h => h(g(f)))(u => x)(u => u);
-// λn.λf.λx. n (λg.λh. h (g f)) (λu.x) (λu.u)
+// λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)
 test('pred', () => {
   expect(jsnum(pred(zero))).toBe(0);
   expect(jsnum(pred(one))).toBe(0);
@@ -79,7 +79,7 @@ test('pred', () => {
   expect(jsnum(pred(three))).toBe(2);
 });
 
-const add = m => n => m(succ)(n); // λmn. (m succ) n.
+const add = m => n => m(succ)(n); // λmn.(m succ) n.
 test('add', () => {
   expect(jsnum(add(zero)(zero))).toBe(0);
   expect(jsnum(add(zero)(one))).toBe(1);
@@ -87,7 +87,7 @@ test('add', () => {
   expect(jsnum(add(two)(three))).toBe(5);
 });
 
-const sub = m => n => n(pred)(m); // λmn. (n pred) m
+const sub = m => n => n(pred)(m); // λmn.(n pred) m
 test('sub', () => {
   expect(jsnum(sub(zero)(zero))).toBe(0);
   expect(jsnum(sub(one)(zero))).toBe(1);
@@ -100,7 +100,7 @@ test('sub', () => {
   expect(jsnum(sub(one)(three))).toBe(0); // no negative numbers
 });
 
-const mul = m => n => m(add(n))(zero); // λmn. m (add n) 0
+const mul = m => n => m(add(n))(zero); // λmn.m (add n) 0
 test('mul', () => {
   expect(jsnum(mul(zero)(zero))).toBe(0);
   expect(jsnum(mul(zero)(one))).toBe(0);
@@ -111,7 +111,7 @@ test('mul', () => {
 });
 
 //TODO: Fix this.
-const div = m => n => m(sub(n))(zero); // λmn. m (sub n) 0
+const div = m => n => m(sub(n))(zero); // λmn.m (sub n) 0
 test('div', () => {
   expect(jsnum(div(zero)(zero))).toBe(0);
   expect(jsnum(div(zero)(one))).toBe(0);
@@ -120,7 +120,7 @@ test('div', () => {
   //expect(jsnum(div(four)(two))).toBe(2);
 });
 
-const exp = m => n => n(mul(m))(one); // λmn. n (mul m) 1
+const exp = m => n => n(mul(m))(one); // λmn.n (mul m) 1
 test('exp', () => {
   expect(jsnum(exp(zero)(zero))).toBe(1);
   expect(jsnum(exp(two)(zero))).toBe(1);
@@ -130,7 +130,7 @@ test('exp', () => {
 });
 
 const equalbool = a => b => or(and(a)(b))(and(not(a))(not(b)));
-// λab. (or (and a b) (and (not a) (not b)))
+// λab.(or (and a b) (and (not a) (not b)))
 test('equalbool', () => {
   expect(jsbool(equalbool(true_)(true_))).toBe(true);
   expect(jsbool(equalbool(true_)(false_))).toBe(false);
