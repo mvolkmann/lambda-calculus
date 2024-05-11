@@ -34,12 +34,6 @@ test('or', () => {
   expect(jsbool(or(false_)(false_))).toBe(false);
 });
 
-const if_ = b => x => y => b(x)(y); // λbxy.b x y
-test('if_', () => {
-  expect(jsnum(if_(true_)(two)(three))).toBe(2);
-  expect(jsnum(if_(false_)(two)(three))).toBe(3);
-});
-
 const zero = f => x => x; // λfx.x
 const one = f => x => f(x); // λfx.f x
 //const one = succ(zero);
@@ -47,6 +41,14 @@ const two = f => x => f(f(x)); // λfx.f (f x)
 //const two = succ(one);
 const three = f => x => f(f(f(x))); // λfx.f (f (f x))
 //const three = succ(two);
+const four = f => x => f(f(f(f(x)))); // λfx.f (f (f (fx)))
+//const four = succ(three);
+
+const if_ = b => x => y => b(x)(y); // λbxy.b x y
+test('if_', () => {
+  expect(jsnum(if_(true_)(two)(three))).toBe(2);
+  expect(jsnum(if_(false_)(two)(three))).toBe(3);
+});
 
 const identity = x => x; // λx.x
 test('identity', () => {
@@ -105,6 +107,16 @@ test('mult', () => {
   expect(jsnum(mult(one)(two))).toBe(2);
   expect(jsnum(mult(two)(one))).toBe(2);
   expect(jsnum(mult(two)(three))).toBe(6);
+});
+
+//TODO: Fix this.
+const div = m => n => m(sub(n))(zero); // λmn. m (sub n) 0
+test('div', () => {
+  expect(jsnum(div(zero)(zero))).toBe(0);
+  expect(jsnum(div(zero)(one))).toBe(0);
+  expect(jsnum(div(one)(zero))).toBe(0);
+  expect(jsnum(div(two)(one))).toBe(2);
+  expect(jsnum(div(four)(two))).toBe(2);
 });
 
 const exp = m => n => n(mult(m))(one); // λmn. n (mul m) 1
