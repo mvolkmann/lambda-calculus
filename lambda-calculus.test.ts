@@ -4,39 +4,40 @@ import {expect, test} from 'bun:test';
 const jsbool = b => b(true)(false);
 const jsnum = n => n(x => x + 1)(0);
 
-const t = x => y => x; // returns the first argument
-const f = x => y => y; // returns the second argument
+// Adding underscores to avoid conflicting with JavaScript keywords.
+const true_ = x => y => x; // λt. λf. t; returns first argument
+const false_ = x => y => y; // λt. λf. f; returns second argument
 test('true/false', () => {
-  expect(jsbool(t)).toBe(true);
-  expect(jsbool(f)).toBe(false);
+  expect(jsbool(true_)).toBe(true);
+  expect(jsbool(false_)).toBe(false);
 });
 
-const not = b => b(f)(t);
+const not = b => b(false_)(true_); // λb. b false true
 test('not', () => {
-  expect(jsbool(not(t))).toBe(false);
-  expect(jsbool(not(f))).toBe(true);
+  expect(jsbool(not(true_))).toBe(false);
+  expect(jsbool(not(false_))).toBe(true);
 });
 
-const and = x => y => x(y)(f);
+const and = x => y => x(y)(false_); // λx. (λy. x y false)
 test('and', () => {
-  expect(jsbool(and(t)(t))).toBe(true);
-  expect(jsbool(and(t)(f))).toBe(false);
-  expect(jsbool(and(f)(t))).toBe(false);
-  expect(jsbool(and(f)(f))).toBe(false);
+  expect(jsbool(and(true_)(true_))).toBe(true);
+  expect(jsbool(and(true_)(false_))).toBe(false);
+  expect(jsbool(and(false_)(true_))).toBe(false);
+  expect(jsbool(and(false_)(false_))).toBe(false);
 });
 
-const or = x => y => x(t)(y);
+const or = x => y => x(true_)(y); // λx. (λy. x true y)
 test('or', () => {
-  expect(jsbool(or(t)(t))).toBe(true);
-  expect(jsbool(or(t)(f))).toBe(true);
-  expect(jsbool(or(f)(t))).toBe(true);
-  expect(jsbool(or(f)(f))).toBe(false);
+  expect(jsbool(or(true_)(true_))).toBe(true);
+  expect(jsbool(or(true_)(false_))).toBe(true);
+  expect(jsbool(or(false_)(true_))).toBe(true);
+  expect(jsbool(or(false_)(false_))).toBe(false);
 });
 
-const iff = b => x => y => b(x)(y);
-test('iff', () => {
-  expect(jsnum(iff(t)(two)(three))).toBe(2);
-  expect(jsnum(iff(f)(two)(three))).toBe(3);
+const if_ = b => x => y => b(x)(y); // λbxy.b x y
+test('if_', () => {
+  expect(jsnum(if_(true_)(two)(three))).toBe(2);
+  expect(jsnum(if_(false_)(two)(three))).toBe(3);
 });
 
 const zero = f => x => x; // λfx.x
@@ -49,11 +50,11 @@ const three = f => x => f(f(f(x))); // λfx.f (f (f x))
 
 const identity = x => x; // λx.x
 test('identity', () => {
-  expect(jsbool(identity(t))).toBe(true);
+  expect(jsbool(identity(true_))).toBe(true);
   expect(jsnum(identity(two))).toBe(2);
 });
 
-const iszero = n => n(x => f)(t); // λn.n (λx.FALSE) TRUE
+const iszero = n => n(x => false_)(true_); // λn.n (λx.FALSE) TRUE
 test('iszero', () => {
   expect(jsbool(iszero(zero))).toBe(true);
   expect(jsbool(iszero(one))).toBe(false);
