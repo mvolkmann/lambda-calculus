@@ -39,36 +39,36 @@ test('iff', () => {
   expect(jsnum(iff(f)(two)(three))).toBe(3);
 });
 
-const succ = n => f => a => f(n(f)(a));
-const zero = f => x => x;
-const one = f => x => f(x);
+const zero = f => x => x; // λfx.x
+const one = f => x => f(x); // λfx.f x
 //const one = succ(zero);
-const two = f => x => f(f(x));
+const two = f => x => f(f(x)); // λfx.f (f x)
 //const two = succ(one);
-const three = f => x => f(f(f(x)));
+const three = f => x => f(f(f(x))); // λfx.f (f (f x))
 //const three = succ(two);
 
-const identity = x => x;
+const identity = x => x; // λx.x
 test('identity', () => {
   expect(jsbool(identity(t))).toBe(true);
   expect(jsnum(identity(two))).toBe(2);
 });
 
-const iszero = n => n(x => f)(t);
+const iszero = n => n(x => f)(t); // λn.n (λx.FALSE) TRUE
 test('iszero', () => {
   expect(jsbool(iszero(zero))).toBe(true);
   expect(jsbool(iszero(one))).toBe(false);
   expect(jsbool(iszero(two))).toBe(false);
 });
 
+const succ = n => f => x => f(n(f)(x)); // λn (λf. λx. f (n f x))
 test('succ', () => {
   expect(jsnum(succ(zero))).toBe(1);
   expect(jsnum(succ(one))).toBe(2);
   expect(jsnum(succ(two))).toBe(3);
 });
 
-// λn.λf.λx. n (λg.λh. h (g f)) (λu.x) (λu.u)
 const pred = n => f => x => n(g => h => h(g(f)))(u => x)(u => u);
+// λn.λf.λx. n (λg.λh. h (g f)) (λu.x) (λu.u)
 test('pred', () => {
   expect(jsnum(pred(zero))).toBe(0);
   expect(jsnum(pred(one))).toBe(0);
@@ -76,7 +76,7 @@ test('pred', () => {
   expect(jsnum(pred(three))).toBe(2);
 });
 
-const add = m => n => m(succ)(n);
+const add = m => n => m(succ)(n); // λmn. (m succ) n.
 test('add', () => {
   expect(jsnum(add(zero)(zero))).toBe(0);
   expect(jsnum(add(zero)(one))).toBe(1);
@@ -84,7 +84,7 @@ test('add', () => {
   expect(jsnum(add(two)(three))).toBe(5);
 });
 
-const sub = m => n => n(pred)(m);
+const sub = m => n => n(pred)(m); // λmn. (n pred) m
 test('sub', () => {
   expect(jsnum(sub(zero)(zero))).toBe(0);
   expect(jsnum(sub(one)(zero))).toBe(1);
@@ -96,7 +96,7 @@ test('sub', () => {
   expect(jsnum(sub(three)(three))).toBe(0);
 });
 
-const mult = m => n => m(add(n))(zero);
+const mult = m => n => m(add(n))(zero); // λmn. m (add n) 0
 test('mult', () => {
   expect(jsnum(mult(zero)(zero))).toBe(0);
   expect(jsnum(mult(zero)(one))).toBe(0);
@@ -106,7 +106,7 @@ test('mult', () => {
   expect(jsnum(mult(two)(three))).toBe(6);
 });
 
-const exp = m => n => n(mult(m))(one);
+const exp = m => n => n(mult(m))(one); // λmn. n (mul m) 1
 test('exp', () => {
   expect(jsnum(exp(zero)(zero))).toBe(1);
   expect(jsnum(exp(two)(zero))).toBe(1);
