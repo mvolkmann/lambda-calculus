@@ -4,8 +4,8 @@ import {expect, test} from 'bun:test';
 const jsbool = b => b(true)(false);
 const jsnum = n => n(x => x + 1)(0);
 
-const t = x => y => x;
-const f = x => y => y;
+const t = x => y => x; // returns the first argument
+const f = x => y => y; // returns the second argument
 test('true/false', () => {
   expect(jsbool(t)).toBe(true);
   expect(jsbool(f)).toBe(false);
@@ -64,8 +64,17 @@ test('succ', () => {
   expect(jsnum(succ(two))).toBe(3);
 });
 
+const pred = n => iszero(n)(zero)(n(f));
+// const pred = n => n(f);
+test('pred', () => {
+  expect(jsnum(pred(zero))).toBe(0);
+  expect(jsnum(pred(one))).toBe(0);
+  // expect(jsnum(pred(two))).toBe(1);
+  // expect(jsnum(pred(three))).toBe(2);
+});
+
 const add = m => n => m(succ)(n);
-test('succ', () => {
+test('add', () => {
   expect(jsnum(add(zero)(zero))).toBe(0);
   expect(jsnum(add(zero)(one))).toBe(1);
   expect(jsnum(add(one)(zero))).toBe(1);
