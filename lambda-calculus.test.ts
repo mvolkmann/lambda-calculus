@@ -116,6 +116,8 @@ test('exp', () => {
   expect(jsnum(exp(three)(two))).toBe(9);
 });
 
+// TODO: Implement the equal function.
+
 // TODO: Implement the function composition function.
 
 // TODO: Implement the y combinator function.
