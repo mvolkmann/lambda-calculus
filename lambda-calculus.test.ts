@@ -18,7 +18,7 @@ test('not', () => {
   expect(jsbool(not(false_))).toBe(true);
 });
 
-const and = x => y => x(y)(false_); // λx.(λy.x y false)
+const and = x => y => x(y)(false_); // λx. λy.x y false
 test('and', () => {
   expect(jsbool(and(true_)(true_))).toBe(true);
   expect(jsbool(and(true_)(false_))).toBe(false);
@@ -26,7 +26,7 @@ test('and', () => {
   expect(jsbool(and(false_)(false_))).toBe(false);
 });
 
-const or = x => y => x(true_)(y); // λx.(λy.x true y)
+const or = x => y => x(true_)(y); // λx. λy.x true y
 test('or', () => {
   expect(jsbool(or(true_)(true_))).toBe(true);
   expect(jsbool(or(true_)(false_))).toBe(true);
