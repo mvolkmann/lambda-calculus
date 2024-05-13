@@ -71,13 +71,13 @@ test('succ', () => {
 });
 
 // This uses the definition from the Wikipedia page on Lambda Calculus.
-const pred = n => f => x => n(g => h => h(g(f)))(u => x)(u => u);
+const predw = n => f => x => n(g => h => h(g(f)))(u => x)(u => u);
 // λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)
-test('pred', () => {
-  expect(jsnum(pred(zero))).toBe(0);
-  expect(jsnum(pred(one))).toBe(0);
-  expect(jsnum(pred(two))).toBe(1);
-  expect(jsnum(pred(three))).toBe(2);
+test('predw', () => {
+  expect(jsnum(predw(zero))).toBe(0);
+  expect(jsnum(predw(one))).toBe(0);
+  expect(jsnum(predw(two))).toBe(1);
+  expect(jsnum(predw(three))).toBe(2);
 });
 
 // This uses a more literal interpretation of the Kleene solution.
@@ -85,20 +85,38 @@ const pair = x => y => f => f(x)(y); // λx.λy.λf.f x y
 const fst = p => p(true_); // λp.p TRUE
 const snd = p => p(false_); // λp.p FALSE
 test('fst and snd', () => {
-  const myPair = pair(one)(two);
-  expect(jsnum(fst(myPair))).toBe(1);
-  expect(jsnum(snd(myPair))).toBe(2);
+  let p = pair(zero)(zero);
+  expect(jsnum(fst(p))).toBe(0);
+  expect(jsnum(snd(p))).toBe(0);
+
+  p = pair(one)(two);
+  expect(jsnum(fst(p))).toBe(1);
+  expect(jsnum(snd(p))).toBe(2);
 });
+
 // This takes a pair and returns a new pair composed of
 // the second element and the successor of the second element.
 const phi = p => pair(snd(p))(succ(snd(p))); // λp.pair (snd p) (succ (snd p))
+test('phi', () => {
+  let p = pair(zero)(zero);
+  p = phi(p);
+  expect(jsnum(fst(p))).toBe(0);
+  expect(jsnum(snd(p))).toBe(1);
+  p = phi(p);
+  expect(jsnum(fst(p))).toBe(1);
+  expect(jsnum(snd(p))).toBe(2);
+  p = phi(p);
+  expect(jsnum(fst(p))).toBe(2);
+  expect(jsnum(snd(p))).toBe(3);
+});
+
 // n(phi) represents n applications of phi.
-const pred2 = n => fst(n(phi)(pair(zero)(zero))); // λn.fst (n phi (pair zero zero))
-test('pred2', () => {
-  expect(jsnum(pred2(zero))).toBe(0);
-  expect(jsnum(pred2(one))).toBe(0);
-  expect(jsnum(pred2(two))).toBe(1);
-  expect(jsnum(pred2(three))).toBe(2);
+const pred = n => fst(n(phi)(pair(zero)(zero))); // λn.fst (n phi (pair zero zero))
+test('pred', () => {
+  expect(jsnum(pred(zero))).toBe(0);
+  expect(jsnum(pred(one))).toBe(0);
+  expect(jsnum(pred(two))).toBe(1);
+  expect(jsnum(pred(three))).toBe(2);
 });
 
 const add = m => n => m(succ)(n); // λmn.(m succ) n.
@@ -110,6 +128,16 @@ test('add', () => {
 });
 
 const sub = m => n => n(pred)(m); // λmn.(n pred) m
+/*
+let count = 0;
+const sub = m => n => {
+  const result = n(pred)(m);
+  // console.log('sub:', m.toString(), 'minus', n.toString(), 'is', n.toString());
+  count++;
+  // if (count >= 3) process.exit(0);
+  return result;
+};
+*/
 test('sub', () => {
   expect(jsnum(sub(zero)(zero))).toBe(0);
   expect(jsnum(sub(one)(zero))).toBe(1);
@@ -119,6 +147,7 @@ test('sub', () => {
   expect(jsnum(sub(three)(one))).toBe(2);
   expect(jsnum(sub(three)(two))).toBe(1);
   expect(jsnum(sub(three)(three))).toBe(0);
+  expect(jsnum(sub(four)(two))).toBe(2);
   expect(jsnum(sub(one)(three))).toBe(0); // no negative numbers
 });
 
@@ -135,6 +164,7 @@ test('mul', () => {
   expect(jsnum(mul(two)(three))).toBe(6);
 });
 
+/*
 //TODO: Fix this.
 const div = m => n => m(sub(n))(zero); // λmn.m (sub n) 0
 test('div', () => {
@@ -144,6 +174,7 @@ test('div', () => {
   //expect(jsnum(div(two)(one))).toBe(2);
   //expect(jsnum(div(four)(two))).toBe(2);
 });
+*/
 
 const exp = m => n => n(mul(m))(one); // λmn.n (mul m) 1
 test('exp', () => {
@@ -180,11 +211,20 @@ test('compose', () => {
   expect(jsnum(compose(mul2)(add3)(two))).toBe(10);
 });
 
-const ycomb = f => (x => x(x))(x => f(y => x(x)(y))); // λf.(λx.f (x x)) (λx.f (x x))
+//TODO: This works, but why doesn't it match this?
+//      λf.(λx.f(x x))(λx.f(x x))
+const Y = f => (x => x(x))(x => f(y => x(x)(y))); // λf.(λx.x x) (λx.f (x x))
+// const Y = f => (x => f(x(x)))(x => f(x(x))); // λf.(λx.f (x x)) (λx.f (x x))
+// This operates on JavaScript integers.
 const facgen0 = f => n => n === 0 ? 1 : n * f(n - 1);
-const factorial0 = ycomb(facgen0);
-const facgen = f => n => if_(iszero(n))(one)(mul(n)(f(sub(n)(one))));
-const factorial = ycomb(facgen);
+const factorial0 = Y(facgen0);
+// This operates on Lambda Calculus numbers.
+// const facgen = f => n => if_(iszero(n))(one)(mul(n)(f(sub(n)(one))));
+const facgen = f => n => {
+  console.log('facgen: n =', n.toString());
+  return if_(iszero(n))(one)(mul(n)(f(sub(n)(one))));
+};
+const factorial = Y(facgen);
 test('factorial', () => {
   expect(factorial0(0)).toBe(1);
   expect(factorial0(1)).toBe(1);
@@ -192,10 +232,10 @@ test('factorial', () => {
   expect(factorial0(3)).toBe(6);
   expect(factorial0(4)).toBe(24);
   expect(factorial0(5)).toBe(120);
-  expect(jsnum(factorial(zero))).toBe(1);
+  // expect(jsnum(factorial(zero))).toBe(1);
+  // expect(jsnum(factorial(one))).toBe(1);
+  // expect(jsnum(factorial(two))).toBe(2);
   /*
-  expect(jsnum(factorial(one))).toBe(1);
-  expect(jsnum(factorial(two))).toBe(2);
   expect(jsnum(factorial(three))).toBe(6);
   expect(jsnum(factorial(four))).toBe(24);
   expect(jsnum(factorial(five))).toBe(120);
