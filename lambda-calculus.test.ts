@@ -212,12 +212,8 @@ test('compose', () => {
 //      λf.(λx.f(x x))(λx.f(x x))
 const Y = f => (x => x(x))(x => f(y => x(x)(y))); // λf.(λx.x x) (λx.f (x x))
 // const Y = f => (x => f(x(x)))(x => f(x(x))); // λf.(λx.f (x x)) (λx.f (x x))
-// This operates on Lambda Calculus numbers.
-// const facgen = f => n => if_(iszero(n))(one)(mul(n)(f(sub(n)(one))));
-const facgen = f => n => {
-  const computePrev = () => mul(n)(f(sub(n)(one)));
-  return if_(iszero(n))(() => one)(computePrev);
-};
+const facgen = f => n =>
+  if_(iszero(n))(() => one)(() => mul(n)(f(sub(n)(one))));
 const factorial = Y(facgen);
 test('factorial', () => {
   expect(jsnum(factorial(zero))).toBe(1);
