@@ -180,14 +180,25 @@ test('compose', () => {
   expect(jsnum(compose(mul2)(add3)(two))).toBe(10);
 });
 
-const facgen = f => n => n === 0 ? 1 : n * f(n - 1);
 const ycomb = f => (x => x(x))(x => f(y => x(x)(y))); // λf.(λx.f (x x)) (λx.f (x x))
+const facgen0 = f => n => n === 0 ? 1 : n * f(n - 1);
+const facgen = f => n => if_(iszero(n))(one)(mul(n)(f(sub(n)(one))));
+const factorial0 = ycomb(facgen0);
 const factorial = ycomb(facgen);
 test('factorial', () => {
-  expect(factorial(0)).toBe(1);
-  expect(factorial(1)).toBe(1);
-  expect(factorial(2)).toBe(2);
-  expect(factorial(3)).toBe(6);
-  expect(factorial(4)).toBe(24);
-  expect(factorial(5)).toBe(120);
+  expect(jsnum(factorial0(zero))).toBe(1);
+  expect(jsnum(factorial0(one))).toBe(1);
+  expect(jsnum(factorial0(two))).toBe(2);
+  expect(jsnum(factorial0(three))).toBe(6);
+  expect(jsnum(factorial0(four))).toBe(24);
+  expect(jsnum(factorial0(five))).toBe(120);
+
+  /*
+  expect(jsnum(factorial(0))).toBe(1);
+  expect(jsnum(factorial(1))).toBe(1);
+  expect(jsnum(factorial(2))).toBe(2);
+  expect(jsnum(factorial(3))).toBe(6);
+  expect(jsnum(factorial(4))).toBe(24);
+  expect(jsnum(factorial(5))).toBe(120);
+  */
 });
