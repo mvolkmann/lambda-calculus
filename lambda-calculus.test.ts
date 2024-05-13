@@ -180,4 +180,14 @@ test('compose', () => {
   expect(jsnum(compose(mul2)(add3)(two))).toBe(10);
 });
 
-// TODO: Implement the y combinator function.
+const facgen = f => n => n === 0 ? 1 : n * f(n - 1);
+const ycomb = f => (x => x(x))(x => f(y => x(x)(y))); // λf.(λx.f (x x)) (λx.f (x x))
+const factorial = ycomb(facgen);
+test('factorial', () => {
+  expect(factorial(0)).toBe(1);
+  expect(factorial(1)).toBe(1);
+  expect(factorial(2)).toBe(2);
+  expect(factorial(3)).toBe(6);
+  expect(factorial(4)).toBe(24);
+  expect(factorial(5)).toBe(120);
+});
