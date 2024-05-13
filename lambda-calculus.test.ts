@@ -79,6 +79,22 @@ test('pred', () => {
   expect(jsnum(pred(three))).toBe(2);
 });
 
+const pair = x => y => f => f(x)(y);
+const fst = x => y => x;
+const snd = x => y => y;
+// const fst = true_;
+// const snd = false_;
+const pred2 = n => fst(n(p => pair(snd(p))(succ(snd(p)))))(pair(zero)(zero));
+test('pred2', () => {
+  // const myPair = pair(one)(two);
+  // expect(jsnum(fst(myPair))).toBe(1);
+  // expect(jsnum(snd(myPair))).toBe(2);
+  // expect(jsnum(pred2(zero))).toBe(0);
+  // expect(jsnum(pred2(one))).toBe(0);
+  // expect(jsnum(pred2(two))).toBe(1);
+  // expect(jsnum(pred2(three))).toBe(2);
+});
+
 const add = m => n => m(succ)(n); // λmn.(m succ) n.
 test('add', () => {
   expect(jsnum(add(zero)(zero))).toBe(0);
@@ -100,7 +116,10 @@ test('sub', () => {
   expect(jsnum(sub(one)(three))).toBe(0); // no negative numbers
 });
 
-const mul = m => n => m(add(n))(zero); // λmn.m (add n) 0
+// const mul = m => n => m(add(n))(zero); // λmn.m (add n) 0
+// The above is correct, but multiplication is also the same as composition!
+const compose = f => g => x => f(g(x)); // λfgx.f (g x)
+const mul = compose;
 test('mul', () => {
   expect(jsnum(mul(zero)(zero))).toBe(0);
   expect(jsnum(mul(zero)(one))).toBe(0);
@@ -147,7 +166,7 @@ test('equalnum', () => {
   expect(jsbool(equalnum(two)(one))).toBe(false);
 });
 
-const compose = f => g => x => f(g(x)); // λfgx.f (g x)
+// The compose function is defined above.
 test('compose', () => {
   const add3 = n => add(three)(n);
   const mul2 = n => mul(two)(n);
