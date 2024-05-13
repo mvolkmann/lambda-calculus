@@ -79,20 +79,22 @@ test('pred', () => {
   expect(jsnum(pred(three))).toBe(2);
 });
 
-const pair = x => y => f => f(x)(y);
-const fst = x => y => x;
-const snd = x => y => y;
-// const fst = true_;
-// const snd = false_;
-const pred2 = n => fst(n(p => pair(snd(p))(succ(snd(p)))))(pair(zero)(zero));
+const pair = x => y => f => f(x)(y); // λx.λy.λf.f x y; aka Vireo
+const fst = p => p(true_); // λp.p TRUE
+const snd = p => p(false_); // λp.p FALSE
+// This takes a pair and returns a new pair composed of
+// the second element and the successor of the second element.
+const phi = p => pair(snd(p))(succ(snd(p)));
+// n(phi) is n applications of phi.
+const pred2 = n => fst(n(phi)(pair(zero)(zero)));
 test('pred2', () => {
-  // const myPair = pair(one)(two);
-  // expect(jsnum(fst(myPair))).toBe(1);
-  // expect(jsnum(snd(myPair))).toBe(2);
-  // expect(jsnum(pred2(zero))).toBe(0);
-  // expect(jsnum(pred2(one))).toBe(0);
-  // expect(jsnum(pred2(two))).toBe(1);
-  // expect(jsnum(pred2(three))).toBe(2);
+  const myPair = pair(one)(two);
+  expect(jsnum(fst(myPair))).toBe(1);
+  expect(jsnum(snd(myPair))).toBe(2);
+  expect(jsnum(pred2(zero))).toBe(0);
+  expect(jsnum(pred2(one))).toBe(0);
+  expect(jsnum(pred2(two))).toBe(1);
+  expect(jsnum(pred2(three))).toBe(2);
 });
 
 const add = m => n => m(succ)(n); // λmn.(m succ) n.
