@@ -70,6 +70,7 @@ test('succ', () => {
   expect(jsnum(succ(two))).toBe(3);
 });
 
+// This uses the definition from the Wikipedia page on Lambda Calculus.
 const pred = n => f => x => n(g => h => h(g(f)))(u => x)(u => u);
 // λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)
 test('pred', () => {
@@ -79,18 +80,21 @@ test('pred', () => {
   expect(jsnum(pred(three))).toBe(2);
 });
 
-const pair = x => y => f => f(x)(y); // λx.λy.λf.f x y; aka Vireo
+// This uses a more literal interpretation of the Kleene solution.
+const pair = x => y => f => f(x)(y); // λx.λy.λf.f x y
 const fst = p => p(true_); // λp.p TRUE
 const snd = p => p(false_); // λp.p FALSE
-// This takes a pair and returns a new pair composed of
-// the second element and the successor of the second element.
-const phi = p => pair(snd(p))(succ(snd(p)));
-// n(phi) is n applications of phi.
-const pred2 = n => fst(n(phi)(pair(zero)(zero)));
-test('pred2', () => {
+test('fst and snd', () => {
   const myPair = pair(one)(two);
   expect(jsnum(fst(myPair))).toBe(1);
   expect(jsnum(snd(myPair))).toBe(2);
+});
+// This takes a pair and returns a new pair composed of
+// the second element and the successor of the second element.
+const phi = p => pair(snd(p))(succ(snd(p))); // λp.pair (snd p) (succ (snd p))
+// n(phi) represents n applications of phi.
+const pred2 = n => fst(n(phi)(pair(zero)(zero))); // λn.fst (n phi (pair zero zero))
+test('pred2', () => {
   expect(jsnum(pred2(zero))).toBe(0);
   expect(jsnum(pred2(one))).toBe(0);
   expect(jsnum(pred2(two))).toBe(1);
