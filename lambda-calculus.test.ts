@@ -40,14 +40,21 @@ const one = f => x => f(x); // λfx.f x
 const two = f => x => f(f(x)); // λfx.f (f x)
 //const two = succ(one);
 const three = f => x => f(f(f(x))); // λfx.f (f (f x))
-//const three = succ(two);
 const four = f => x => f(f(f(f(x)))); // λfx.f (f (f (fx)))
-//const four = succ(three);
+const five = f => x => f(f(f(f(f(x))))); // λfx.f (f (f (f (f x))))
 
-const if_ = b => x => y => b(x)(y); // λbxy.b x y
+// const if_ = b => x => y => b(x)(y); // λbxy.b x y
+// b is a Boolean value.
+// t is a function that can be called to get the true value.
+// f is a function that can be called to get the false value.
+const if_ = b => t => f => b(t)(f)(); // λbtf.(b t f)(_)
 test('if_', () => {
-  expect(jsnum(if_(true_)(two)(three))).toBe(2);
-  expect(jsnum(if_(false_)(two)(three))).toBe(3);
+  const first = () => one;
+  const second = () => two;
+  expect(jsnum(if_(true_)(first)(second))).toBe(1);
+  expect(jsnum(if_(false_)(first)(second))).toBe(2);
+  expect(jsnum(if_(iszero(zero))(first)(second))).toBe(1);
+  expect(jsnum(if_(iszero(one))(first)(second))).toBe(2);
 });
 
 const identity = x => x; // λx.x
@@ -128,16 +135,6 @@ test('add', () => {
 });
 
 const sub = m => n => n(pred)(m); // λmn.(n pred) m
-/*
-let count = 0;
-const sub = m => n => {
-  const result = n(pred)(m);
-  // console.log('sub:', m.toString(), 'minus', n.toString(), 'is', n.toString());
-  count++;
-  // if (count >= 3) process.exit(0);
-  return result;
-};
-*/
 test('sub', () => {
   expect(jsnum(sub(zero)(zero))).toBe(0);
   expect(jsnum(sub(one)(zero))).toBe(1);
@@ -215,29 +212,18 @@ test('compose', () => {
 //      λf.(λx.f(x x))(λx.f(x x))
 const Y = f => (x => x(x))(x => f(y => x(x)(y))); // λf.(λx.x x) (λx.f (x x))
 // const Y = f => (x => f(x(x)))(x => f(x(x))); // λf.(λx.f (x x)) (λx.f (x x))
-// This operates on JavaScript integers.
-const facgen0 = f => n => n === 0 ? 1 : n * f(n - 1);
-const factorial0 = Y(facgen0);
 // This operates on Lambda Calculus numbers.
 // const facgen = f => n => if_(iszero(n))(one)(mul(n)(f(sub(n)(one))));
 const facgen = f => n => {
-  console.log('facgen: n =', n.toString());
-  return if_(iszero(n))(one)(mul(n)(f(sub(n)(one))));
+  const computePrev = () => mul(n)(f(sub(n)(one)));
+  return if_(iszero(n))(() => one)(computePrev);
 };
 const factorial = Y(facgen);
 test('factorial', () => {
-  expect(factorial0(0)).toBe(1);
-  expect(factorial0(1)).toBe(1);
-  expect(factorial0(2)).toBe(2);
-  expect(factorial0(3)).toBe(6);
-  expect(factorial0(4)).toBe(24);
-  expect(factorial0(5)).toBe(120);
-  // expect(jsnum(factorial(zero))).toBe(1);
-  // expect(jsnum(factorial(one))).toBe(1);
-  // expect(jsnum(factorial(two))).toBe(2);
-  /*
+  expect(jsnum(factorial(zero))).toBe(1);
+  expect(jsnum(factorial(one))).toBe(1);
+  expect(jsnum(factorial(two))).toBe(2);
   expect(jsnum(factorial(three))).toBe(6);
   expect(jsnum(factorial(four))).toBe(24);
   expect(jsnum(factorial(five))).toBe(120);
-  */
 });
