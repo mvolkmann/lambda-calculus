@@ -225,6 +225,7 @@ test('factorialY', () => {
 });
 
 // This works in strictly evaluated languages like JavaScript.
+// Note that the two terms at the end are identical.
 const Z = f => (x => f(y => x(x)(y)))(x => f(y => x(x)(y)));
 const factorialZ = Z(facgen);
 test('factorialZ', () => {
