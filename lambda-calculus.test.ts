@@ -223,3 +223,14 @@ test('factorial', () => {
   expect(jsnum(factorial(four))).toBe(24);
   expect(jsnum(factorial(five))).toBe(120);
 });
+
+const Z = f => (x => f(y => x(x)(y)))(x => f(y => x(x)(y)));
+const factorialZ = Z(facgen);
+test('factorialZ', () => {
+  expect(jsnum(factorialZ(zero))).toBe(1);
+  expect(jsnum(factorialZ(one))).toBe(1);
+  expect(jsnum(factorialZ(two))).toBe(2);
+  expect(jsnum(factorialZ(three))).toBe(6);
+  expect(jsnum(factorialZ(four))).toBe(24);
+  expect(jsnum(factorialZ(five))).toBe(120);
+});
