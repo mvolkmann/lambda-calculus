@@ -43,6 +43,16 @@ const three = f => x => f(f(f(x))); // λfx.f (f (f x))
 const four = f => x => f(f(f(f(x)))); // λfx.f (f (f (fx)))
 const five = f => x => f(f(f(f(f(x))))); // λfx.f (f (f (f (f x))))
 
+test('Church numerals', () => {
+  const results = [];
+  const demo = x => {
+    results.push(x);
+    return x + x;
+  };
+  five(demo)(3);
+  expect(results).toMatchObject([3, 6, 12, 24, 48]);
+});
+
 // const if_ = b => x => y => b(x)(y); // λbxy.b x y
 // b is a Boolean value.
 // t is a function that can be called to get the true value.
