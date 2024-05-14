@@ -208,22 +208,23 @@ test('compose', () => {
   expect(jsnum(compose(mul2)(add3)(two))).toBe(10);
 });
 
-//TODO: This works, but why doesn't it match this?
-//      λf.(λx.f(x x))(λx.f(x x))
-const Y = f => (x => x(x))(x => f(y => x(x)(y))); // λf.(λx.x x) (λx.f (x x))
+// This definition only works in lazily evaluated languages like Haskell.
 // const Y = f => (x => f(x(x)))(x => f(x(x))); // λf.(λx.f (x x)) (λx.f (x x))
+// This definition works in strictly evaluated languages like JavaScript.
+const Y = f => (x => x(x))(x => f(y => x(x)(y))); // λf.(λx.x x) (λx.f (x x))
 const facgen = f => n =>
   if_(iszero(n))(() => one)(() => mul(n)(f(sub(n)(one))));
-const factorial = Y(facgen);
-test('factorial', () => {
-  expect(jsnum(factorial(zero))).toBe(1);
-  expect(jsnum(factorial(one))).toBe(1);
-  expect(jsnum(factorial(two))).toBe(2);
-  expect(jsnum(factorial(three))).toBe(6);
-  expect(jsnum(factorial(four))).toBe(24);
-  expect(jsnum(factorial(five))).toBe(120);
+const factorialY = Y(facgen);
+test('factorialY', () => {
+  expect(jsnum(factorialY(zero))).toBe(1);
+  expect(jsnum(factorialY(one))).toBe(1);
+  expect(jsnum(factorialY(two))).toBe(2);
+  expect(jsnum(factorialY(three))).toBe(6);
+  expect(jsnum(factorialY(four))).toBe(24);
+  expect(jsnum(factorialY(five))).toBe(120);
 });
 
+// This works in strictly evaluated languages like JavaScript.
 const Z = f => (x => f(y => x(x)(y)))(x => f(y => x(x)(y)));
 const factorialZ = Z(facgen);
 test('factorialZ', () => {
