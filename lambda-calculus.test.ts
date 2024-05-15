@@ -172,18 +172,19 @@ test('mul', () => {
 });
 
 /*
-//TODO: Fix this.
+//TODO: This is not correct. Can it be fixed?
 const div = m => n => m(sub(n))(zero); // λmn.m (sub n) 0
 test('div', () => {
   expect(jsnum(div(zero)(zero))).toBe(0);
   expect(jsnum(div(zero)(one))).toBe(0);
   expect(jsnum(div(one)(zero))).toBe(0);
-  //expect(jsnum(div(two)(one))).toBe(2);
+  expect(jsnum(div(two)(one))).toBe(2);
   //expect(jsnum(div(four)(two))).toBe(2);
 });
 */
 
-const exp = m => n => n(mul(m))(one); // λmn.n (mul m) 1
+// const exp = m => n => n(mul(m))(one); // λmn.n (mul m) 1
+const exp = m => n => n(m); // λmn.n m
 test('exp', () => {
   expect(jsnum(exp(zero)(zero))).toBe(1);
   expect(jsnum(exp(two)(zero))).toBe(1);
@@ -222,8 +223,7 @@ test('compose', () => {
 // const Y = f => (x => f(x(x)))(x => f(x(x))); // λf.(λx.f (x x)) (λx.f (x x))
 // This definition works in strictly evaluated languages like JavaScript.
 const Y = f => (x => x(x))(x => f(y => x(x)(y))); // λf.(λx.x x) (λx.f (x x))
-const facgen = f => n =>
-  if_(iszero(n))(() => one)(() => mul(n)(f(sub(n)(one))));
+const facgen = f => n => iszero(n)(() => one)(() => mul(n)(f(sub(n)(one))))();
 const factorialY = Y(facgen);
 test('factorialY', () => {
   expect(jsnum(factorialY(zero))).toBe(1);
