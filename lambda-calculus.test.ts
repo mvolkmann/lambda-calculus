@@ -171,17 +171,9 @@ test('mul', () => {
   expect(jsnum(mul(two)(three))).toBe(6);
 });
 
-/*
-//TODO: This is not correct. Can it be fixed?
-const div = m => n => m(sub(n))(zero); // λmn.m (sub n) 0
-test('div', () => {
-  expect(jsnum(div(zero)(zero))).toBe(0);
-  expect(jsnum(div(zero)(one))).toBe(0);
-  expect(jsnum(div(one)(zero))).toBe(0);
-  expect(jsnum(div(two)(one))).toBe(2);
-  //expect(jsnum(div(four)(two))).toBe(2);
-});
-*/
+// Definining division by repeated subtraction isn't working.
+// const div = m => n => m(sub(n))(zero); // λmn.m (sub n) 0
+// See a recursive attempt at the bottom of this file.
 
 // const exp = m => n => n(mul(m))(one); // λmn.n (mul m) 1
 const exp = m => n => n(m); // λmn.n m
@@ -245,4 +237,31 @@ test('factorialZ', () => {
   expect(jsnum(factorialZ(three))).toBe(6);
   expect(jsnum(factorialZ(four))).toBe(24);
   expect(jsnum(factorialZ(five))).toBe(120);
+});
+
+// This is based on the DIVISION slide near the end of
+// https://www.cs.rochester.edu/u/brown/173/lectures/functional/lambda/Lambda3.html
+//TODO: Why doesn't this work?
+// const divgen = f => x => y =>
+//   iszero(y)(() => zero)(() => succ(f(sub(x)(y))(y)))();
+// const div = Z(divgen);
+const div1 = (x, y) => (y > x ? 0 : 1 + div1(x - y, y));
+const div = (x, y) => (y === 0 ? 0 : div1(x, y));
+test('div', () => {
+  expect(div(0, 0)).toBe(0);
+  expect(div(1, 0)).toBe(0);
+  expect(div(0, 1)).toBe(0);
+  expect(div(1, 1)).toBe(1);
+  expect(div(2, 1)).toBe(2);
+  expect(div(3, 1)).toBe(3);
+  expect(div(3, 2)).toBe(1);
+  expect(div(4, 2)).toBe(2);
+  expect(div(6, 2)).toBe(3);
+  expect(div(21, 3)).toBe(7);
+  //expect(jsnum(div(zero)(zero))).toBe(0);
+  //expect(jsnum(div(zero)(one))).toBe(0);
+  //expect(jsnum(div(one)(zero))).toBe(0);
+  //expect(jsnum(div(one)(one))).toBe(1);
+  //expect(jsnum(div(two)(one))).toBe(2);
+  //expect(jsnum(div(four)(two))).toBe(2);
 });
