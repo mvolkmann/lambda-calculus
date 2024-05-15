@@ -245,6 +245,8 @@ test('factorialZ', () => {
 // const divgen = f => x => y =>
 //   iszero(y)(() => zero)(() => succ(f(sub(x)(y))(y)))();
 // const div = Z(divgen);
+// TODO: Convert this into a lambda calculus solution
+//       that uses the Y or Z combinator.
 const div1 = (x, y) => (y > x ? 0 : 1 + div1(x - y, y));
 const div = (x, y) => (y === 0 ? 0 : div1(x, y));
 test('div', () => {
