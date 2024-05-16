@@ -267,3 +267,19 @@ test('div', () => {
   //expect(jsnum(div(two)(one))).toBe(2);
   //expect(jsnum(div(four)(two))).toBe(2);
 });
+
+const cons = a => b => f => f(a)(b);
+const car = p => p(true_);
+const cdr = p => p(false_);
+const nil = f => x => null;
+test('cons, car, cdr', () => {
+  const pair = cons(one)(two);
+  expect(car(pair)).toBe(one);
+  expect(cdr(pair)).toBe(two);
+
+  const list = cons(one)(cons(two)(cons(three)(nil)));
+  expect(car(list)).toBe(one);
+  expect(car(cdr(list))).toBe(two);
+  expect(car(cdr(cdr(list)))).toBe(three);
+  expect(cdr(cdr(cdr(list)))).toBe(nil);
+});
