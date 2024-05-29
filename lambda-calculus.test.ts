@@ -215,7 +215,7 @@ test('compose', () => {
 // const Y = f => (x => f(x(x)))(x => f(x(x))); // λf.(λx.f (x x)) (λx.f (x x))
 // This definition works in strictly evaluated languages like JavaScript.
 const Y = f => (x => x(x))(x => f(y => x(x)(y))); // λf.(λx.x x) (λx.f (x x))
-const facgen = f => n => iszero(n)(() => one)(() => mul(n)(f(sub(n)(one))))();
+const facgen = f => n => iszero(n)(() => one)(() => mul(n)(f(pred(n))))();
 const factorialY = Y(facgen);
 test('factorialY', () => {
   expect(jsnum(factorialY(zero))).toBe(1);
