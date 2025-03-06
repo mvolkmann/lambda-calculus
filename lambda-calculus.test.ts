@@ -50,7 +50,21 @@ test('Church numerals', () => {
     return x + x;
   };
   five(demo)(3);
+  // Creates array containing 3, 3+3, 6+6, 12+12, and 24+24.
   expect(results).toMatchObject([3, 6, 12, 24, 48]);
+});
+
+const identity = x => x; // λx.x
+test('identity', () => {
+  expect(jsbool(identity(true_))).toBe(true);
+  expect(jsnum(identity(two))).toBe(2);
+});
+
+const iszero = n => n(x => false_)(true_); // λn.n (λx.FALSE) TRUE
+test('iszero', () => {
+  expect(jsbool(iszero(zero))).toBe(true);
+  expect(jsbool(iszero(one))).toBe(false);
+  expect(jsbool(iszero(two))).toBe(false);
 });
 
 // const if_ = b => x => y => b(x)(y); // λbxy.b x y
@@ -67,19 +81,6 @@ test('if_', () => {
   expect(jsnum(if_(iszero(one))(first)(second))).toBe(2);
 });
 
-const identity = x => x; // λx.x
-test('identity', () => {
-  expect(jsbool(identity(true_))).toBe(true);
-  expect(jsnum(identity(two))).toBe(2);
-});
-
-const iszero = n => n(x => false_)(true_); // λn.n (λx.FALSE) TRUE
-test('iszero', () => {
-  expect(jsbool(iszero(zero))).toBe(true);
-  expect(jsbool(iszero(one))).toBe(false);
-  expect(jsbool(iszero(two))).toBe(false);
-});
-
 const succ = n => f => x => f(n(f)(x)); // λn (λf. λx.f (n f x))
 test('succ', () => {
   expect(jsnum(succ(zero))).toBe(1);
@@ -88,10 +89,11 @@ test('succ', () => {
 });
 
 // This uses the definition from the Wikipedia page on Lambda Calculus.
+// Another easier to follow implementation, pred, is shown below.
 const predw = n => f => x => n(g => h => h(g(f)))(u => x)(u => u);
 // λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)
 test('predw', () => {
-  expect(jsnum(predw(zero))).toBe(0);
+  expect(jsnum(predw(zero))).toBe(0); // nothing before zero
   expect(jsnum(predw(one))).toBe(0);
   expect(jsnum(predw(two))).toBe(1);
   expect(jsnum(predw(three))).toBe(2);
@@ -130,7 +132,7 @@ test('phi', () => {
 // n(phi) represents n applications of phi.
 const pred = n => fst(n(phi)(pair(zero)(zero))); // λn.fst (n phi (pair zero zero))
 test('pred', () => {
-  expect(jsnum(pred(zero))).toBe(0);
+  expect(jsnum(pred(zero))).toBe(0); // nothing before zero
   expect(jsnum(pred(one))).toBe(0);
   expect(jsnum(pred(two))).toBe(1);
   expect(jsnum(pred(three))).toBe(2);
