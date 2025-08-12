@@ -242,6 +242,12 @@ test('factorialZ', () => {
 });
 
 const lessThan = m => n => not(isZero(sub(n)(m)));
+
+// This divides the whole number m by the whole number n.
+// If n = zero then return zero (handles division by zero).
+// If m < n then return zero (n cannot go into m even once).
+// If (m - n) < n then return one (n can only go into m once).
+// Otherwise, return successor of (m - n) / n.
 const divGen = f => m => n =>
   isZero(n)(() => zero)(() =>
     lessThan(m)(n)(() => zero)(() =>
