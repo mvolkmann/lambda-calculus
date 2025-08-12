@@ -241,21 +241,23 @@ test('factorialZ', () => {
   expect(jsNum(factorialZ(five))).toBe(120);
 });
 
+const lessThan = m => n => not(isZero(sub(n)(m)));
 const divGen = f => m => n =>
   isZero(n)(() => zero)(() =>
-    isZero(sub(m)(n))(() => zero)(() => succ(f(sub(m)(n))(n)))()
+    lessThan(m)(n)(() => zero)(() =>
+      lessThan(sub(m)(n))(n)(() => one)(() => succ(f(sub(m)(n))(n)))()
+    )()
   )();
 const div = Z(divGen);
 
 test('div', () => {
   expect(jsNum(div(zero)(one))).toBe(0);
   expect(jsNum(div(one)(one))).toBe(1);
-  /*
   expect(jsNum(div(two)(one))).toBe(2);
   expect(jsNum(div(three)(two))).toBe(1);
   expect(jsNum(div(four)(two))).toBe(2);
   expect(jsNum(div(five)(two))).toBe(2);
-  */
+  expect(jsNum(div(two)(five))).toBe(0);
 });
 
 const cons = a => b => f => f(a)(b);
