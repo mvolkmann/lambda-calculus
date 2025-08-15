@@ -173,10 +173,6 @@ test('mul', () => {
   expect(jsNum(mul(two)(three))).toBe(6);
 });
 
-// Defining division by repeated subtraction isn't working.
-// const div = m => n => m(sub(n))(zero); // λmn.m (sub n) 0
-// See a recursive attempt at the bottom of this file.
-
 // const exp = m => n => n(mul(m))(one); // λmn.n (mul m) 1
 const exp = m => n => n(m); // λmn.n m
 test('exp', () => {
