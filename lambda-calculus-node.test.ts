@@ -1,8 +1,9 @@
-// This is the Bun version of
-// lambda-calculus-node.test.ts which is the Node.js version.
-// This version is 5 times faster.
+// This is the Node.js version of
+// lambda-calculus.test.ts which is the Bun version.
+// This version is 5 times slower.
 // @ts-nocheck
-import {expect, test} from 'bun:test';
+import assert from 'node:assert/strict';
+import test from 'node:test';
 
 const jsBool = b => b(true)(false);
 const jsNum = n => n(x => x + 1)(0);
@@ -11,30 +12,30 @@ const jsNum = n => n(x => x + 1)(0);
 const true_ = x => y => x; // λt. λf. t; returns first argument
 const false_ = x => y => y; // λt. λf. f; returns second argument
 test('true/false', () => {
-  expect(jsBool(true_)).toBe(true);
-  expect(jsBool(false_)).toBe(false);
+  assert.equal(jsBool(true_), true);
+  assert.equal(jsBool(false_), false);
 });
 
 const not = b => b(false_)(true_); // λb.b false true
 test('not', () => {
-  expect(jsBool(not(true_))).toBe(false);
-  expect(jsBool(not(false_))).toBe(true);
+  assert.equal(jsBool(not(true_)), false);
+  assert.equal(jsBool(not(false_)), true);
 });
 
 const and = x => y => x(y)(false_); // λx. λy.x y false
 test('and', () => {
-  expect(jsBool(and(true_)(true_))).toBe(true);
-  expect(jsBool(and(true_)(false_))).toBe(false);
-  expect(jsBool(and(false_)(true_))).toBe(false);
-  expect(jsBool(and(false_)(false_))).toBe(false);
+  assert.equal(jsBool(and(true_)(true_)), true);
+  assert.equal(jsBool(and(true_)(false_)), false);
+  assert.equal(jsBool(and(false_)(true_)), false);
+  assert.equal(jsBool(and(false_)(false_)), false);
 });
 
 const or = x => y => x(true_)(y); // λx. λy.x true y
 test('or', () => {
-  expect(jsBool(or(true_)(true_))).toBe(true);
-  expect(jsBool(or(true_)(false_))).toBe(true);
-  expect(jsBool(or(false_)(true_))).toBe(true);
-  expect(jsBool(or(false_)(false_))).toBe(false);
+  assert.equal(jsBool(or(true_)(true_)), true);
+  assert.equal(jsBool(or(true_)(false_)), true);
+  assert.equal(jsBool(or(false_)(true_)), true);
+  assert.equal(jsBool(or(false_)(false_)), false);
 });
 
 const zero = f => x => x; // λfx.x
@@ -60,20 +61,20 @@ test('Church numerals', () => {
   };
   five(demo)(3);
   // Creates array containing 3, 3+3, 6+6, 12+12, and 24+24.
-  expect(results).toMatchObject([3, 6, 12, 24, 48]);
+  assert.deepEqual(results, [3, 6, 12, 24, 48]);
 });
 
 const identity = x => x; // λx.x
 test('identity', () => {
-  expect(jsBool(identity(true_))).toBe(true);
-  expect(jsNum(identity(two))).toBe(2);
+  assert.equal(jsBool(identity(true_)), true);
+  assert.equal(jsNum(identity(two)), 2);
 });
 
 const isZero = n => n(x => false_)(true_); // λn.n (λx.FALSE) TRUE
 test('isZero', () => {
-  expect(jsBool(isZero(zero))).toBe(true);
-  expect(jsBool(isZero(one))).toBe(false);
-  expect(jsBool(isZero(two))).toBe(false);
+  assert.equal(jsBool(isZero(zero)), true);
+  assert.equal(jsBool(isZero(one)), false);
+  assert.equal(jsBool(isZero(two)), false);
 });
 
 // const if_ = b => x => y => b(x)(y); // λbxy.b x y
@@ -84,16 +85,16 @@ const if_ = b => t => f => b(t)(f)(); // λbtf.(b t f)(_)
 test('if_', () => {
   const first = () => one;
   const second = () => two;
-  expect(jsNum(if_(true_)(first)(second))).toBe(1);
-  expect(jsNum(if_(false_)(first)(second))).toBe(2);
-  expect(jsNum(if_(isZero(zero))(first)(second))).toBe(1);
-  expect(jsNum(if_(isZero(one))(first)(second))).toBe(2);
+  assert.equal(jsNum(if_(true_)(first)(second)), 1);
+  assert.equal(jsNum(if_(false_)(first)(second)), 2);
+  assert.equal(jsNum(if_(isZero(zero))(first)(second)), 1);
+  assert.equal(jsNum(if_(isZero(one))(first)(second)), 2);
 });
 
 test('succ', () => {
-  expect(jsNum(succ(zero))).toBe(1);
-  expect(jsNum(succ(one))).toBe(2);
-  expect(jsNum(succ(two))).toBe(3);
+  assert.equal(jsNum(succ(zero)), 1);
+  assert.equal(jsNum(succ(one)), 2);
+  assert.equal(jsNum(succ(two)), 3);
 });
 
 // This uses the definition from the Wikipedia page on Lambda Calculus.
@@ -101,10 +102,10 @@ test('succ', () => {
 const predW = n => f => x => n(g => h => h(g(f)))(u => x)(u => u);
 // λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)
 test('predW', () => {
-  expect(jsNum(predW(zero))).toBe(0); // nothing before zero
-  expect(jsNum(predW(one))).toBe(0);
-  expect(jsNum(predW(two))).toBe(1);
-  expect(jsNum(predW(three))).toBe(2);
+  assert.equal(jsNum(predW(zero)), 0); // nothing before zero
+  assert.equal(jsNum(predW(one)), 0);
+  assert.equal(jsNum(predW(two)), 1);
+  assert.equal(jsNum(predW(three)), 2);
 });
 
 // This uses a more literal interpretation of the Kleene solution.
@@ -113,12 +114,12 @@ const fst = p => p(true_); // λp.p TRUE
 const snd = p => p(false_); // λp.p FALSE
 test('fst and snd', () => {
   let p = pair(zero)(zero);
-  expect(jsNum(fst(p))).toBe(0);
-  expect(jsNum(snd(p))).toBe(0);
+  assert.equal(jsNum(fst(p)), 0);
+  assert.equal(jsNum(snd(p)), 0);
 
   p = pair(one)(two);
-  expect(jsNum(fst(p))).toBe(1);
-  expect(jsNum(snd(p))).toBe(2);
+  assert.equal(jsNum(fst(p)), 1);
+  assert.equal(jsNum(snd(p)), 2);
 });
 
 // This takes a pair and returns a new pair composed of
@@ -127,45 +128,45 @@ const phi = p => pair(snd(p))(succ(snd(p))); // λp.pair (snd p) (succ (snd p))
 test('phi', () => {
   let p = pair(zero)(zero);
   p = phi(p);
-  expect(jsNum(fst(p))).toBe(0);
-  expect(jsNum(snd(p))).toBe(1);
+  assert.equal(jsNum(fst(p)), 0);
+  assert.equal(jsNum(snd(p)), 1);
   p = phi(p);
-  expect(jsNum(fst(p))).toBe(1);
-  expect(jsNum(snd(p))).toBe(2);
+  assert.equal(jsNum(fst(p)), 1);
+  assert.equal(jsNum(snd(p)), 2);
   p = phi(p);
-  expect(jsNum(fst(p))).toBe(2);
-  expect(jsNum(snd(p))).toBe(3);
+  assert.equal(jsNum(fst(p)), 2);
+  assert.equal(jsNum(snd(p)), 3);
 });
 
 // n(phi) represents n applications of phi.
 const pred = n => fst(n(phi)(pair(zero)(zero))); // λn.fst (n phi (pair zero zero))
 test('pred', () => {
-  expect(jsNum(pred(zero))).toBe(0); // nothing before zero
-  expect(jsNum(pred(one))).toBe(0);
-  expect(jsNum(pred(two))).toBe(1);
-  expect(jsNum(pred(three))).toBe(2);
+  assert.equal(jsNum(pred(zero)), 0); // nothing before zero
+  assert.equal(jsNum(pred(one)), 0);
+  assert.equal(jsNum(pred(two)), 1);
+  assert.equal(jsNum(pred(three)), 2);
 });
 
 const add = m => n => m(succ)(n); // λmn.(m succ) n.
 test('add', () => {
-  expect(jsNum(add(zero)(zero))).toBe(0);
-  expect(jsNum(add(zero)(one))).toBe(1);
-  expect(jsNum(add(one)(zero))).toBe(1);
-  expect(jsNum(add(two)(three))).toBe(5);
+  assert.equal(jsNum(add(zero)(zero)), 0);
+  assert.equal(jsNum(add(zero)(one)), 1);
+  assert.equal(jsNum(add(one)(zero)), 1);
+  assert.equal(jsNum(add(two)(three)), 5);
 });
 
 const sub = m => n => n(pred)(m); // λmn.(n pred) m
 test('sub', () => {
-  expect(jsNum(sub(zero)(zero))).toBe(0);
-  expect(jsNum(sub(one)(zero))).toBe(1);
-  expect(jsNum(sub(two)(zero))).toBe(2);
-  expect(jsNum(sub(two)(one))).toBe(1);
-  expect(jsNum(sub(two)(two))).toBe(0);
-  expect(jsNum(sub(three)(one))).toBe(2);
-  expect(jsNum(sub(three)(two))).toBe(1);
-  expect(jsNum(sub(three)(three))).toBe(0);
-  expect(jsNum(sub(four)(two))).toBe(2);
-  expect(jsNum(sub(one)(three))).toBe(0); // no negative numbers
+  assert.equal(jsNum(sub(zero)(zero)), 0);
+  assert.equal(jsNum(sub(one)(zero)), 1);
+  assert.equal(jsNum(sub(two)(zero)), 2);
+  assert.equal(jsNum(sub(two)(one)), 1);
+  assert.equal(jsNum(sub(two)(two)), 0);
+  assert.equal(jsNum(sub(three)(one)), 2);
+  assert.equal(jsNum(sub(three)(two)), 1);
+  assert.equal(jsNum(sub(three)(three)), 0);
+  assert.equal(jsNum(sub(four)(two)), 2);
+  assert.equal(jsNum(sub(one)(three)), 0); // no negative numbers
 });
 
 // const mul = m => n => m(add(n))(zero); // λmn.m (add n) 0
@@ -173,48 +174,48 @@ test('sub', () => {
 const compose = f => g => x => f(g(x)); // λfgx.f (g x)
 const mul = compose;
 test('mul', () => {
-  expect(jsNum(mul(zero)(zero))).toBe(0);
-  expect(jsNum(mul(zero)(one))).toBe(0);
-  expect(jsNum(mul(one)(zero))).toBe(0);
-  expect(jsNum(mul(one)(two))).toBe(2);
-  expect(jsNum(mul(two)(one))).toBe(2);
-  expect(jsNum(mul(two)(three))).toBe(6);
+  assert.equal(jsNum(mul(zero)(zero)), 0);
+  assert.equal(jsNum(mul(zero)(one)), 0);
+  assert.equal(jsNum(mul(one)(zero)), 0);
+  assert.equal(jsNum(mul(one)(two)), 2);
+  assert.equal(jsNum(mul(two)(one)), 2);
+  assert.equal(jsNum(mul(two)(three)), 6);
 });
 
 // const exp = m => n => n(mul(m))(one); // λmn.n (mul m) 1
 const exp = m => n => n(m); // λmn.n m
 test('exp', () => {
-  expect(jsNum(exp(zero)(zero))).toBe(1);
-  expect(jsNum(exp(two)(zero))).toBe(1);
-  expect(jsNum(exp(two)(one))).toBe(2);
-  expect(jsNum(exp(two)(three))).toBe(8);
-  expect(jsNum(exp(three)(two))).toBe(9);
+  assert.equal(jsNum(exp(zero)(zero)), 1);
+  assert.equal(jsNum(exp(two)(zero)), 1);
+  assert.equal(jsNum(exp(two)(one)), 2);
+  assert.equal(jsNum(exp(two)(three)), 8);
+  assert.equal(jsNum(exp(three)(two)), 9);
 });
 
 const equalBool = a => b => or(and(a)(b))(and(not(a))(not(b)));
 // λab.(or (and a b) (and (not a) (not b)))
 test('equalBool', () => {
-  expect(jsBool(equalBool(true_)(true_))).toBe(true);
-  expect(jsBool(equalBool(true_)(false_))).toBe(false);
-  expect(jsBool(equalBool(false_)(true_))).toBe(false);
-  expect(jsBool(equalBool(false_)(false_))).toBe(true);
+  assert.equal(jsBool(equalBool(true_)(true_)), true);
+  assert.equal(jsBool(equalBool(true_)(false_)), false);
+  assert.equal(jsBool(equalBool(false_)(true_)), false);
+  assert.equal(jsBool(equalBool(false_)(false_)), true);
 });
 
 // We have to test both because sub returns zero when m < n.
 const equalNum = m => n => and(isZero(sub(m)(n)))(isZero(sub(n)(m)));
 // λmn.and (isZero (sub m n)) (isZero (sub n m))
 test('equalNum', () => {
-  expect(jsBool(equalNum(one)(two))).toBe(false);
-  expect(jsBool(equalNum(two)(two))).toBe(true);
-  expect(jsBool(equalNum(two)(one))).toBe(false);
+  assert.equal(jsBool(equalNum(one)(two)), false);
+  assert.equal(jsBool(equalNum(two)(two)), true);
+  assert.equal(jsBool(equalNum(two)(one)), false);
 });
 
 // The compose function is defined above.
 test('compose', () => {
   const add3 = n => add(three)(n);
   const mul2 = n => mul(two)(n);
-  expect(jsNum(compose(add3)(mul2)(two))).toBe(7);
-  expect(jsNum(compose(mul2)(add3)(two))).toBe(10);
+  assert.equal(jsNum(compose(add3)(mul2)(two)), 7);
+  assert.equal(jsNum(compose(mul2)(add3)(two)), 10);
 });
 
 // This definition only works in lazily evaluated languages like Haskell.
@@ -224,12 +225,12 @@ const Y = f => (x => x(x))(x => f(y => x(x)(y))); // λf.(λx.x x) (λx.f (x x))
 const facGen = f => n => isZero(n)(() => one)(() => mul(n)(f(pred(n))))();
 const factorialY = Y(facGen);
 test('factorialY', () => {
-  expect(jsNum(factorialY(zero))).toBe(1);
-  expect(jsNum(factorialY(one))).toBe(1);
-  expect(jsNum(factorialY(two))).toBe(2);
-  expect(jsNum(factorialY(three))).toBe(6);
-  expect(jsNum(factorialY(four))).toBe(24);
-  expect(jsNum(factorialY(five))).toBe(120);
+  assert.equal(jsNum(factorialY(zero)), 1);
+  assert.equal(jsNum(factorialY(one)), 1);
+  assert.equal(jsNum(factorialY(two)), 2);
+  assert.equal(jsNum(factorialY(three)), 6);
+  assert.equal(jsNum(factorialY(four)), 24);
+  assert.equal(jsNum(factorialY(five)), 120);
 });
 
 // This works in strictly evaluated languages like JavaScript.
@@ -237,12 +238,12 @@ test('factorialY', () => {
 const Z = f => (x => f(y => x(x)(y)))(x => f(y => x(x)(y)));
 const factorialZ = Z(facGen);
 test('factorialZ', () => {
-  expect(jsNum(factorialZ(zero))).toBe(1);
-  expect(jsNum(factorialZ(one))).toBe(1);
-  expect(jsNum(factorialZ(two))).toBe(2);
-  expect(jsNum(factorialZ(three))).toBe(6);
-  expect(jsNum(factorialZ(four))).toBe(24);
-  expect(jsNum(factorialZ(five))).toBe(120);
+  assert.equal(jsNum(factorialZ(zero)), 1);
+  assert.equal(jsNum(factorialZ(one)), 1);
+  assert.equal(jsNum(factorialZ(two)), 2);
+  assert.equal(jsNum(factorialZ(three)), 6);
+  assert.equal(jsNum(factorialZ(four)), 24);
+  assert.equal(jsNum(factorialZ(five)), 120);
 });
 
 const lessThan = m => n => not(isZero(sub(n)(m)));
@@ -258,13 +259,13 @@ const divGen = f => m => n =>
 const div = Z(divGen);
 
 test('div', () => {
-  expect(jsNum(div(zero)(one))).toBe(0);
-  expect(jsNum(div(one)(one))).toBe(1);
-  expect(jsNum(div(two)(one))).toBe(2);
-  expect(jsNum(div(three)(two))).toBe(1);
-  expect(jsNum(div(four)(two))).toBe(2);
-  expect(jsNum(div(five)(two))).toBe(2);
-  expect(jsNum(div(two)(five))).toBe(0);
+  assert.equal(jsNum(div(zero)(one)), 0);
+  assert.equal(jsNum(div(one)(one)), 1);
+  assert.equal(jsNum(div(two)(one)), 2);
+  assert.equal(jsNum(div(three)(two)), 1);
+  assert.equal(jsNum(div(four)(two)), 2);
+  assert.equal(jsNum(div(five)(two)), 2);
+  assert.equal(jsNum(div(two)(five)), 0);
 });
 
 const cons = a => b => f => f(a)(b);
@@ -273,12 +274,12 @@ const cdr = p => p(false_);
 const nil = _f => _x => null;
 test('cons, car, cdr', () => {
   const pair = cons(one)(two);
-  expect(car(pair)).toBe(one);
-  expect(cdr(pair)).toBe(two);
+  assert.equal(car(pair), one);
+  assert.equal(cdr(pair), two);
 
   const list = cons(one)(cons(two)(cons(three)(nil)));
-  expect(car(list)).toBe(one);
-  expect(car(cdr(list))).toBe(two);
-  expect(car(cdr(cdr(list)))).toBe(three);
-  expect(cdr(cdr(cdr(list)))).toBe(nil);
+  assert.equal(car(list), one);
+  assert.equal(car(cdr(list)), two);
+  assert.equal(car(cdr(cdr(list))), three);
+  assert.equal(cdr(cdr(cdr(list))), nil);
 });

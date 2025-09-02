@@ -2,6 +2,10 @@
   "name": "lambda-calculus",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "test": "bun test lambda-calculus.test.ts",
+    "test:node": "node lambda-calculus-node.test.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
