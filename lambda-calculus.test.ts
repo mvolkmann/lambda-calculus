@@ -8,8 +8,8 @@ const jsBool = b => b(true)(false);
 const jsNum = n => n(x => x + 1)(0);
 
 // Adding underscores to avoid conflicting with JavaScript keywords.
-const true_ = x => y => x; // λt. λf. t; returns first argument
-const false_ = x => y => y; // λt. λf. f; returns second argument
+const true_ = x => y => x; // λx. λy. x; returns first argument
+const false_ = x => y => y; // λx. λy. y; returns second argument
 test('true/false', () => {
   expect(jsBool(true_)).toBe(true);
   expect(jsBool(false_)).toBe(false);
